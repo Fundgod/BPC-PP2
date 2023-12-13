@@ -12,22 +12,50 @@ from .data_base_connection import DBSample
 
 
 class MainWindow():
+    def search_button(self):
+        db_search = DBSample()
+        data = db_search.select_from_entry(self.entry_1.get())
+
+        self.table.delete(*self.table.get_children())
+
+        for row_data in data:
+            self.table.insert(parent="", index="end", values=row_data)
+        
+
     def create_new_item_window(self):
-            self.new_window = PopUpWindow(self.window)
+            self.new_window = PopUpWindow(self.window, self.update_treeview)
     
     def sort_treeview_column(self, tv, col, reverse):
-            # Get the values from the column to sort
-            data = [(tv.set(child, col), child) for child in tv.get_children("")]
-            
-            # Sort the data based on the values
-            data.sort(reverse=reverse)
-            
-            # Rearrange the items in the Treeview
-            for index, (val, child) in enumerate(data):
-                tv.move(child, "", index)
+            # Function to determine the key for sorting based on column index
+        def get_sort_key(item):
+            value, child = item
+            if col == 'ID' or col == 'Year':  # Assuming the first and fourth columns
+                return int(value)
+            elif col == 'Rate':  # Assuming the fifth column
+                return float(value)
+            else:
+                return value
 
-            # Reverse the sort order for the next click
-            tv.heading(col, command=lambda: self.sort_treeview_column(tv, col, not reverse))
+        # Get the values from the column to sort
+        data = [(tv.set(child, col), child) for child in tv.get_children("")]
+
+        # Sort the data based on the values and data type
+        data.sort(key=get_sort_key, reverse=reverse)
+
+        # Rearrange the items in the Treeview
+        for index, (_, child) in enumerate(data):
+            tv.move(child, "", index)
+
+        # Reverse the sort order for the next click
+        tv.heading(col, command=lambda: self.sort_treeview_column(tv, col, not reverse))
+
+    def update_treeview(self):
+        db = DBSample()
+        self.table.delete(*self.table.get_children())
+
+        for row_data in db.get_all_lines():
+            self.table.insert(parent="", index="end", values=row_data)
+
 
     def __init__(self):
         self.window = Tk()
@@ -96,7 +124,7 @@ class MainWindow():
             image=self.button_image_2,
             borderwidth=0,
             highlightthickness=0,
-            command=lambda: print("button_2 clicked"),
+            command=self.search_button,
             relief="flat"
         )
         self.button_2.place(
@@ -108,15 +136,13 @@ class MainWindow():
 
         self.table = ttk.Treeview(master=self.window, columns=table_columns, show="headings")
 
-        for column in table_columns:
+        for i in range(len(table_columns)):
+            column = table_columns[i]
+            width = table_columns_sizes[i]
             self.table.heading(column=column, text=column, command=lambda c=column: self.sort_treeview_column(self.table, c, False))
-            self.table.column(column=column, width=195)
+            self.table.column(column=column, width=width)
 
-        
-        db = DBSample()
-
-        for row_data in db.start():
-            self.table.insert(parent="", index="end", values=row_data)
+        self.update_treeview()
 
         self.style = ttk.Style()
         self.style.theme_use("default")

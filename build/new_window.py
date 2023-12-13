@@ -14,7 +14,9 @@ class PopUpWindow:
             input = DBSample()
             input.create_new_row(title, author, int(year), float(rate))
             messagebox.showinfo("Success", description)
+            self.callback_function()
             self.new_item_window.destroy()
+            
         else:
             messagebox.showinfo("Error", description)
 
@@ -42,8 +44,12 @@ class PopUpWindow:
         # All conditions passed
         return True, "Validation successful"
 
-    def __init__(self, master_window):
+    def __init__(self, master_window, callback_function):
         self.new_item_window = tk.Toplevel(master_window)
+
+        self.new_item_window.attributes('-topmost', True)
+        self.callback_function = callback_function
+
         self.new_item_window.title("New Item")
         self.new_item_window.geometry("320x330")
         self.new_item_window.configure(bg = "#FFFFFF")
