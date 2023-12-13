@@ -1,25 +1,27 @@
 import sqlite3
-import sys
 
 
 class DBSample():
     def start(self):
         # Connect to SQLite database (or create a new one if it doesn't exist)
-        connection = sqlite3.connect("bd.db")
-        # Create a cursor object to interact with the database
-        cursor = self.connection.cursor()
+        with sqlite3.connect('bd.db') as connection:
+            # Create a cursor object to interact with the database
+            cursor = connection.cursor()
 
-        # Execute a SELECT statement to retrieve all rows from the "films" table
-        cursor.execute('SELECT * FROM films')
+            # Execute a SELECT statement to retrieve all rows from the "films" table
+            cursor.execute('SELECT * FROM films')
 
-        # Fetch all the rows
-        rows = cursor.fetchall()
-
-        # Commit the changes and close the connection
-        connection.close()
+            # Fetch all the rows
+            rows = cursor.fetchall()
         return rows
-
     
-    # Ивент для отключения от БД
-    def closeEvent(self, event):
-        self.connection.close()
+    def create_new_row(self, title, author, year, rate):
+        # Connect to SQLite database
+        with sqlite3.connect('bd.db') as connection:
+            cursor = connection.cursor()
+
+            # Use placeholders to prevent SQL injection
+            cursor.execute('INSERT INTO films (title, author, year, rate) VALUES (?, ?, ?, ?)', (title, author, year, rate))
+
+            # Commit the changes and close the connection
+            connection.commit()

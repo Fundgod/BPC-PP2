@@ -4,11 +4,11 @@
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Text, Button, PhotoImage
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage
 from tkinter import ttk
-from .data import *
 from .new_window import PopUpWindow
 from .variables import *
+from .data_base_connection import DBSample
 
 
 class MainWindow():
@@ -110,9 +110,12 @@ class MainWindow():
 
         for column in table_columns:
             self.table.heading(column=column, text=column, command=lambda c=column: self.sort_treeview_column(self.table, c, False))
-            self.table.column(column=column, width=200)
+            self.table.column(column=column, width=195)
 
-        for row_data in table_data:
+        
+        db = DBSample()
+
+        for row_data in db.start():
             self.table.insert(parent="", index="end", values=row_data)
 
         self.style = ttk.Style()
@@ -121,7 +124,7 @@ class MainWindow():
         self.style.configure("Treeview.Heading", background="#917FB3", fieldbackground="#917FB3", foreground="white")
         self.style.map("Treeview", background=[("selected", "#E5BEEC")])
 
-        self.table.place(x=20, y=70, height=400)
+        self.table.place(x=10, y=70, height=400)
 
         self.window.resizable(False, False)
         self.window.mainloop()

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-table_columns = ["ID", "Title", "Author"]
+table_columns = ["ID", "Title", "Author", "Year", "Rate"]
 
 OUTPUT_PATH = Path(__file__).parent
 ASSETS_PATH = OUTPUT_PATH / Path(r"C:\Users\fundg\Desktop\prog\projects\BPC-PP2\build\assets\frame0")
