@@ -4,7 +4,7 @@
 
 # from tkinter import *
 # Explicit imports to satisfy Flake8
-from tkinter import Tk, Canvas, Entry, Button, PhotoImage
+from tkinter import Tk, Canvas, Entry, Button, PhotoImage, messagebox
 from tkinter import ttk
 from .new_window import PopUpWindow
 from .variables import *
@@ -14,7 +14,7 @@ from .data_base_connection import DBSample
 class MainWindow():
     def search_button(self):
         db_search = DBSample()
-        data = db_search.select_from_entry(self.entry_1.get())
+        data = db_search.select_from_entry(self.entry.get())
 
         self.table.delete(*self.table.get_children())
 
@@ -56,11 +56,34 @@ class MainWindow():
         for row_data in db.get_all_lines():
             self.table.insert(parent="", index="end", values=row_data)
 
+    def delete_row(self):
+        selected_item = self.table.focus()
+        if selected_item:
+            # Handle the case when an item is selected
+            item_data = self.table.item(selected_item, 'values')
+            db_delete = DBSample()
+            db_delete.delete_by_id(item_data[0])
+            messagebox.showinfo("Success", "Film has been removed")
+        else:
+            # Handle the case when no item is selected
+            messagebox.showinfo("Error", "No film selected")
+        self.update_treeview()
+
+    def correct_row(self):
+        selected_item = self.table.focus()
+        if selected_item:
+            # Handle the case when an item is selected
+            item_data = self.table.item(selected_item, 'values')
+            self.new_window = PopUpWindow(self.window, self.update_treeview, item_data[1], item_data[2], item_data[3], item_data[4], True, item_data[0])
+        else:
+            # Handle the case when no item is selected
+            messagebox.showinfo("Error", "No film selected")
 
     def __init__(self):
         self.window = Tk()
+        self.window.title("F1lmSe4rch")
 
-        self.window.geometry("1000x550")
+        self.window.geometry("1000x530")
         self.window.configure(bg = "#D9D9D9")
 
         self.canvas = Canvas(
@@ -82,60 +105,92 @@ class MainWindow():
             outline="")
 
         self.entry_image_1 = PhotoImage(
-            file=relative_to_assets("entry_1.png"))
+            file=relative_to_assets("entry.png"))
         self.entry_bg_1 = self.canvas.create_image(
-            454.0,
+            414.0,
             29.0,
             image=self.entry_image_1
         )
-        self.entry_1 = Entry(
+        self.entry = Entry(
             bd=0,
             bg="#D9D9D9",
             fg="#000716",
             highlightthickness=0
         )
-        self.entry_1.place(
+        self.entry.place(
             x=30.0,
             y=13.0,
-            width=848.0,
+            width=768.0,
             height=30.0
         )
 
-        self.button_image_1 = PhotoImage(
-            file=relative_to_assets("button_1.png"))
-
-        self.button_1 = Button(
-            image=self.button_image_1,
+        self.button_add_image = PhotoImage(
+            file=relative_to_assets("button_add.png"))
+        self.button_add = Button(
+            image=self.button_add_image,
             borderwidth=0,
             highlightthickness=0,
             command=self.create_new_item_window,
             relief="flat"
         )
-        self.button_1.place(
+        self.button_add.place(
             x=951.0,
             y=11.0,
             width=34.0,
             height=34.0
         )
 
-        self.button_image_2 = PhotoImage(
-            file=relative_to_assets("button_2.png"))
-        self.button_2 = Button(
-            image=self.button_image_2,
+        self.button_search_image = PhotoImage(
+            file=relative_to_assets("button_search.png"))
+        self.button_search = Button(
+            image=self.button_search_image,
             borderwidth=0,
             highlightthickness=0,
             command=self.search_button,
             relief="flat"
         )
-        self.button_2.place(
+        self.button_search.place(
             x=909.0,
             y=13.0,
             width=32.0,
             height=32.0
         )
 
+        button_delete_image = PhotoImage(
+            file=relative_to_assets("button_delete.png"))
+        button_delete = Button(
+            image=button_delete_image,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.delete_row,
+            relief="flat"
+        )
+        button_delete.place(
+            x=867.0,
+            y=13.0,
+            width=32.0,
+            height=32.0
+        )
+
+        button_edit_image = PhotoImage(
+            file=relative_to_assets("button_edit.png"))
+        button_edit = Button(
+            image=button_edit_image,
+            borderwidth=0,
+            highlightthickness=0,
+            command=self.correct_row,
+            relief="flat"
+        )
+        button_edit.place(
+        x=825.0,
+        y=13.0,
+        width=32.0,
+        height=32.0
+        )
+
         self.table = ttk.Treeview(master=self.window, columns=table_columns, show="headings")
 
+        # Define header of table
         for i in range(len(table_columns)):
             column = table_columns[i]
             width = table_columns_sizes[i]
@@ -150,7 +205,9 @@ class MainWindow():
         self.style.configure("Treeview.Heading", background="#917FB3", fieldbackground="#917FB3", foreground="white")
         self.style.map("Treeview", background=[("selected", "#E5BEEC")])
 
-        self.table.place(x=10, y=70, height=400)
+        self.table.place(x=10, y=70, height=450)
 
         self.window.resizable(False, False)
+        print(relative_to_assets("computer.ico"))
+        self.window.iconbitmap(relative_to_assets("Alecive-Flatwoken-Apps-Computer-B.ico"))
         self.window.mainloop()

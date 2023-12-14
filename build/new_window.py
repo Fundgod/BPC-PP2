@@ -8,11 +8,23 @@ from .data_base_connection import DBSample
 class PopUpWindow:
     def input_new_film(self):
         title, author, year, rate = self.entry_title.get(), self.entry_author.get(), self.entry_year.get(), self.entry_rate.get()
-        print(title, author, year, rate)
         check, description = self.validate_entry(title, author, year, rate)
         if check is True:
             input = DBSample()
             input.create_new_row(title, author, int(year), float(rate))
+            messagebox.showinfo("Success", description)
+            self.callback_function()
+            self.new_item_window.destroy()
+            
+        else:
+            messagebox.showinfo("Error", description)
+    
+    def change_film(self):
+        title, author, year, rate = self.entry_title.get(), self.entry_author.get(), self.entry_year.get(), self.entry_rate.get()
+        check, description = self.validate_entry(title, author, year, rate)
+        if check is True:
+            change_db = DBSample()
+            change_db.change_by_id(self.id, title, author, int(year), float(rate))
             messagebox.showinfo("Success", description)
             self.callback_function()
             self.new_item_window.destroy()
@@ -44,7 +56,10 @@ class PopUpWindow:
         # All conditions passed
         return True, "Validation successful"
 
-    def __init__(self, master_window, callback_function):
+    def __init__(self, master_window, callback_function, title=None, author=None, year=None, rate=None, func=False, id=None):
+        # This one is for change function
+        self.id = id 
+        
         self.new_item_window = tk.Toplevel(master_window)
 
         self.new_item_window.attributes('-topmost', True)
@@ -67,7 +82,7 @@ class PopUpWindow:
 
         self.item_canvas.place(x = 0, y = 0)
         self.entry_image_1 = PhotoImage(
-            file=relative_to_assets("entry_1_1.png"))
+            file=relative_to_assets("smaller_entry.png"))
         self.entry_bg_1 = self.item_canvas.create_image(
             162.5,
             80.5,
@@ -80,6 +95,8 @@ class PopUpWindow:
             fg="#000716",
             highlightthickness=0
         )
+        if title:
+            self.entry_title.insert(0, title)
         self.entry_title.place(
             x=36.5,
             y=69.0,
@@ -95,14 +112,24 @@ class PopUpWindow:
             fill="#63AFD0",
             outline="")
 
-        self.item_canvas.create_text(
-            11.0,
-            5.0,
-            anchor="nw",
-            text="Information about new film",
-            fill="#070633",
-            font=("Jokerman Regular", 20 * -1)
-        )
+        if func:
+            self.item_canvas.create_text(
+                11.0,
+                5.0,
+                anchor="nw",
+                text="Change film info",
+                fill="#070633",
+                font=("Jokerman Regular", 20 * -1)
+            )
+        else:
+            self.item_canvas.create_text(
+                11.0,
+                5.0,
+                anchor="nw",
+                text="Information about new film",
+                fill="#070633",
+                font=("Jokerman Regular", 20 * -1)
+            )
 
         self.item_canvas.create_text(
             137.0,
@@ -114,7 +141,7 @@ class PopUpWindow:
         )
 
         self.entry_image_2 = PhotoImage(
-            file=relative_to_assets("entry_1_1.png"))
+            file=relative_to_assets("smaller_entry.png"))
         self.entry_bg_2 = self.item_canvas.create_image(
             162.5,
             246.5,
@@ -127,6 +154,8 @@ class PopUpWindow:
             fg="#000716",
             highlightthickness=0
         )
+        if rate:
+            self.entry_rate.insert(0, rate)
         self.entry_rate.place(
             x=36.5,
             y=235.0,
@@ -144,7 +173,7 @@ class PopUpWindow:
         )
 
         self.entry_image_3 = PhotoImage(
-            file=relative_to_assets("entry_1_1.png"))
+            file=relative_to_assets("smaller_entry.png"))
         self.entry_bg_3 = self.item_canvas.create_image(
             162.5,
             189.5,
@@ -157,6 +186,8 @@ class PopUpWindow:
             fg="#000716",
             highlightthickness=0
         )
+        if year:
+            self.entry_year.insert(0, year)
         self.entry_year.place(
             x=36.5,
             y=178.0,
@@ -174,7 +205,7 @@ class PopUpWindow:
         )
 
         self.entry_image_4 = PhotoImage(
-            file=relative_to_assets("entry_1_1.png"))
+            file=relative_to_assets("smaller_entry.png"))
         self.entry_bg_4 = self.item_canvas.create_image(
             162.5,
             132.5,
@@ -187,6 +218,8 @@ class PopUpWindow:
             fg="#000716",
             highlightthickness=0
         )
+        if author:
+            self.entry_author.insert(0, author)
         self.entry_author.place(
             x=36.5,
             y=121.0,
@@ -203,16 +236,30 @@ class PopUpWindow:
             font=("Jomolhari Regular", 12 * -1)
         )
 
-        self.new_item_window.button_image_1_1 = PhotoImage(
-            file=relative_to_assets("button_1_1.png"))
-        button_1_1 = Button(
-            self.new_item_window,
-            image=self.new_item_window.button_image_1_1,
-            borderwidth=0,
-            highlightthickness=0,
-            command=self.input_new_film,
-            relief="flat"
-        )
+        if func:
+            self.new_item_window.title("Editor")
+            self.new_item_window.button_image_1_1 = PhotoImage(
+                file=relative_to_assets("button_submit.png"))
+            button_1_1 = Button(
+                self.new_item_window,
+                image=self.new_item_window.button_image_1_1,
+                borderwidth=0,
+                highlightthickness=0,
+                command=self.change_film,
+                relief="flat"
+            )
+        else:
+            self.new_item_window.title("Creator")
+            self.new_item_window.button_image_1_1 = PhotoImage(
+                file=relative_to_assets("button_create.png"))
+            button_1_1 = Button(
+                self.new_item_window,
+                image=self.new_item_window.button_image_1_1,
+                borderwidth=0,
+                highlightthickness=0,
+                command=self.input_new_film,
+                relief="flat"
+            )
         button_1_1.place(
             x=85.0,
             y=274.0,

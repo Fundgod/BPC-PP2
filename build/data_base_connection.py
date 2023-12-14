@@ -47,3 +47,22 @@ class DBSample():
             results = cursor.fetchall()
 
         return results
+    
+    def delete_by_id(self, id):
+        with sqlite3.connect('bd.db') as connection:
+            cursor = connection.cursor()
+            query = """DELETE FROM films
+                WHERE ID = ?"""
+            cursor.execute(query, (id, ))
+    
+    def change_by_id(self, id, title, author, year, rate):
+        with sqlite3.connect('bd.db') as connection:
+            cursor = connection.cursor()
+
+            query = """UPDATE films
+                    SET title = ?, author = ?, year = ?, rate = ?
+                    WHERE ID = ?"""
+            cursor.execute(query, (title, author, year, rate, id))
+
+            # Commit the changes to the database
+            connection.commit()
